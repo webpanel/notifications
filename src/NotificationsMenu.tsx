@@ -24,12 +24,18 @@ const QUERY_NOTIFICATIONS = gql`
 export type INotificationData = INoticeIconData & {
   id: string;
   seen: boolean;
+  channel?: string;
   reference?: string;
   referenceID?: string;
 };
 
+interface INotificationsMenuTab {
+  channel?: string;
+  title: string;
+}
 interface INotificationsMenuProps {
   principal: string;
+  tabs?: INotificationsMenuTab[];
   onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
 }
 
@@ -40,7 +46,22 @@ export class NotificationsMenu extends React.Component<
     global.console.log('clear', tabName);
   };
 
+  private notificationsForTab = (
+    notifications: INotificationData[],
+    tab: INotificationsMenuTab
+  ): INotificationData[] => {
+    return notifications
+      .filter(n => !tab.channel || tab.channel === n.channel)
+      .map((x: any) => ({
+        ...x,
+        datetime: moment(x.datetime).fromNow(),
+        extra: !x.seen ? <Tag color={'green'}>!</Tag> : undefined
+      }));
+  };
+
   public render() {
+    const tabs = this.props.tabs || [{ title: 'Notifications' }];
+
     return (
       <Query
         query={QUERY_NOTIFICATIONS}
@@ -60,20 +81,13 @@ export class NotificationsMenu extends React.Component<
               onClear={this.onClear}
               onItemClick={this.onItemClick(history)}
             >
-              <NoticeIcon.Tab
-                list={
-                  data.notifications &&
-                  data.notifications.map((x: any) => ({
-                    ...x,
-                    datetime: moment(x.datetime).fromNow(),
-                    extra: !x.seen ? <Tag color={'green'}>!</Tag> : undefined
-                  }))
-                }
-                title="Komentáře"
-                showClear={false}
-              />
-              {/* <NoticeIcon.Tab list={[]} title="Soubory" showClear={false} /> */}
-              {/* <NoticeIcon.Tab list={[]} title="Soubory" showClear={false} /> */}
+              {tabs.map(t => (
+                <NoticeIcon.Tab
+                  list={this.notificationsForTab(data.notifications || [], t)}
+                  title={t.title}
+                  showClear={false}
+                />
+              ))}
             </NoticeIcon>
           );
         }}
