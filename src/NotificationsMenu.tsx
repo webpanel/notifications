@@ -81,8 +81,9 @@ export class NotificationsMenu extends React.Component<
               onClear={this.onClear}
               onItemClick={this.onItemClick(history)}
             >
-              {tabs.map(t => (
+              {tabs.map((t, i) => (
                 <NoticeIcon.Tab
+                  key={`${t.channel}_${i}`}
                   list={this.notificationsForTab(data.notifications || [], t)}
                   title={t.title}
                   showClear={false}
