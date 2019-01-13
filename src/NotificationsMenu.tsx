@@ -1,6 +1,6 @@
 import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
 import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
-import { Tag } from 'antd';
+import { Tag, Icon } from 'antd';
 import gql from 'graphql-tag';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -55,7 +55,13 @@ export class NotificationsMenu extends React.Component<
       .map((x: any) => ({
         ...x,
         datetime: moment(x.datetime).fromNow(),
-        extra: !x.seen ? <Tag color={'green'}>!</Tag> : undefined
+        extra: !x.seen ? (
+          <Tag color={'green'}>
+            <Icon type="notification" />
+          </Tag>
+        ) : (
+          undefined
+        )
       }));
   };
 
