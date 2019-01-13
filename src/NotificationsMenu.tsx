@@ -21,7 +21,7 @@ const QUERY_NOTIFICATIONS = gql`
   }
 `;
 
-type INotificationData = INoticeIconData & {
+export type INotificationData = INoticeIconData & {
   id: string;
   seen: boolean;
   reference?: string;
