@@ -85,9 +85,9 @@ export class NotificationsMenu extends React.Component<
             pollInterval={10000}
             variables={{ principal: this.props.principal }}
             children={({ loading, error, data, refetch }) => {
-              if (error) {
-                return `${error.message}`;
-              }
+              console.log(
+                `error fetching notifications ${error && error.message}`
+              );
               return (
                 <NoticeIcon
                   count={
