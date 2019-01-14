@@ -123,7 +123,17 @@ export class NotificationsMenu extends React.Component<
     tabProps: INoticeIconProps
   ) => {
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
-    await mutation({ variables: { id: item.id } });
-    refetch();
+    const id = item.id;
+    mutation({
+      variables: { id },
+      optimisticResponse: {
+        __typename: 'Mutation',
+        updateComment: {
+          id,
+          __typename: 'Comment',
+          content: { seen: true }
+        }
+      }
+    });
   };
 }
