@@ -22,7 +22,7 @@ const QUERY_NOTIFICATIONS = gql`
 `;
 
 const SEEN_NOTIFICATION = gql`
-  mutation seenNotification($id: String!) {
+  mutation seenNotification($id: ID!) {
     seenNotification(id: $id) {
       id
     }
