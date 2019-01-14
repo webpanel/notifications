@@ -91,6 +91,7 @@ export class NotificationsMenu extends React.Component<
               return (
                 <NoticeIcon
                   count={
+                    data &&
                     data.notifications &&
                     data.notifications.filter((x: any) => !x.seen).length
                   }
@@ -102,7 +103,7 @@ export class NotificationsMenu extends React.Component<
                     <NoticeIcon.Tab
                       key={`${tab.channel}_${i}`}
                       list={this.notificationsForTab(
-                        data.notifications || [],
+                        (data && data.notifications) || [],
                         tab
                       )}
                       title={tab.title}
