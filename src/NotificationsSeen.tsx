@@ -60,6 +60,6 @@ export class NotificationsSeen extends React.Component<
 
     const { channel, reference } = this.props;
     const date = moment().toISOString();
-    mutation({ channel, reference, date });
+    mutation({ variables: { channel, reference, date } });
   };
 }

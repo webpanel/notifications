@@ -122,7 +122,7 @@ export class NotificationsMenu extends React.Component<
     item: INotificationData,
     tabProps: INoticeIconProps
   ) => {
-    mutation({ id: item.id });
+    mutation({ variables: { id: item.id } });
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
   };
 }
