@@ -85,9 +85,9 @@ export class NotificationsMenu extends React.Component<
             pollInterval={10000}
             variables={{ principal: this.props.principal }}
             children={({ loading, error, data, refetch }) => {
-              console.log(
-                `error fetching notifications ${error && error.message}`
-              );
+              if (error) {
+                console.log(`error fetching notifications ${error.message}`);
+              }
               return (
                 <NoticeIcon
                   count={
@@ -96,7 +96,7 @@ export class NotificationsMenu extends React.Component<
                   }
                   loading={loading}
                   onClear={this.onClear}
-                  onItemClick={this.onItemClick(history, mutation)}
+                  onItemClick={this.onItemClick(history, mutation, refetch)}
                 >
                   {tabs.map((tab, i) => (
                     <NoticeIcon.Tab
@@ -118,11 +118,12 @@ export class NotificationsMenu extends React.Component<
     );
   }
 
-  private onItemClick = (history: any, mutation: any) => (
+  private onItemClick = (history: any, mutation: any, refetch: any) => async (
     item: INotificationData,
     tabProps: INoticeIconProps
   ) => {
-    mutation({ variables: { id: item.id } });
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
+    await mutation({ variables: { id: item.id } });
+    refetch();
   };
 }
