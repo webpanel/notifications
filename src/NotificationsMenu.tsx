@@ -4,7 +4,7 @@ import { Tag, Icon } from 'antd';
 import gql from 'graphql-tag';
 import * as moment from 'moment';
 import * as React from 'react';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 
 const QUERY_NOTIFICATIONS = gql`
   query fetchNotifications($principal: String) {
@@ -17,6 +17,14 @@ const QUERY_NOTIFICATIONS = gql`
       reference
       referenceID
       datetime: date
+    }
+  }
+`;
+
+const SEEN_NOTIFICATION = gql`
+  mutation seenNotification($id: String!) {
+    seenNotification(id: $id) {
+      id
     }
   }
 `;
@@ -69,43 +77,52 @@ export class NotificationsMenu extends React.Component<
     const tabs = this.props.tabs || [{ title: 'Notifications' }];
 
     return (
-      <Query
-        query={QUERY_NOTIFICATIONS}
-        pollInterval={10000}
-        variables={{ principal: this.props.principal }}
-        children={({ loading, error, data, refetch }) => {
-          if (error) {
-            return `${error.message}`;
-          }
-          return (
-            <NoticeIcon
-              count={
-                data.notifications &&
-                data.notifications.filter((x: any) => !x.seen).length
+      <Mutation
+        mutation={SEEN_NOTIFICATION}
+        children={mutation => (
+          <Query
+            query={QUERY_NOTIFICATIONS}
+            pollInterval={10000}
+            variables={{ principal: this.props.principal }}
+            children={({ loading, error, data, refetch }) => {
+              if (error) {
+                return `${error.message}`;
               }
-              loading={loading}
-              onClear={this.onClear}
-              onItemClick={this.onItemClick(history)}
-            >
-              {tabs.map((t, i) => (
-                <NoticeIcon.Tab
-                  key={`${t.channel}_${i}`}
-                  list={this.notificationsForTab(data.notifications || [], t)}
-                  title={t.title}
-                  showClear={false}
-                />
-              ))}
-            </NoticeIcon>
-          );
-        }}
+              return (
+                <NoticeIcon
+                  count={
+                    data.notifications &&
+                    data.notifications.filter((x: any) => !x.seen).length
+                  }
+                  loading={loading}
+                  onClear={this.onClear}
+                  onItemClick={this.onItemClick(history, mutation)}
+                >
+                  {tabs.map((tab, i) => (
+                    <NoticeIcon.Tab
+                      key={`${tab.channel}_${i}`}
+                      list={this.notificationsForTab(
+                        data.notifications || [],
+                        tab
+                      )}
+                      title={tab.title}
+                      showClear={false}
+                    />
+                  ))}
+                </NoticeIcon>
+              );
+            }}
+          />
+        )}
       />
     );
   }
 
-  private onItemClick = (history: any) => (
+  private onItemClick = (history: any, mutation: any) => (
     item: INotificationData,
     tabProps: INoticeIconProps
   ) => {
+    mutation({ id: item.id });
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
   };
 }

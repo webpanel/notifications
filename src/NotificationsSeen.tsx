@@ -39,11 +39,10 @@ export class NotificationsSeen extends React.Component<
     }
 
     const { channel, reference, referenceID } = this.props;
-    const date = moment().toISOString();
     return (
       <Mutation
         mutation={SEEN_NOTIFICATION}
-        variables={{ channel, reference, referenceID, date, principal }}
+        variables={{ channel, reference, referenceID, principal }}
       >
         {mutation => {
           this.runMutationIfNeeded(mutation);
@@ -60,6 +59,7 @@ export class NotificationsSeen extends React.Component<
     this.mutationSent = true;
 
     const { channel, reference } = this.props;
-    mutation({ channel, reference });
+    const date = moment().toISOString();
+    mutation({ channel, reference, date });
   };
 }
