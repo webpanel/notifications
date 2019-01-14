@@ -124,16 +124,9 @@ export class NotificationsMenu extends React.Component<
   ) => {
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
     const id = item.id;
-    mutation({
-      variables: { id },
-      optimisticResponse: {
-        __typename: 'Mutation',
-        updateComment: {
-          id,
-          __typename: 'Comment',
-          content: { seen: true }
-        }
-      }
+    await mutation({
+      variables: { id }
     });
+    refetch();
   };
 }
