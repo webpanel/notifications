@@ -99,17 +99,21 @@ export class NotificationsMenu extends React.Component<
                   onClear={this.onClear}
                   onItemClick={this.onItemClick(history, mutation, refetch)}
                 >
-                  {tabs.map((tab, i) => (
-                    <NoticeIcon.Tab
-                      key={`${tab.channel}_${i}`}
-                      list={this.notificationsForTab(
-                        (data && data.notifications) || [],
-                        tab
-                      )}
-                      title={tab.title}
-                      showClear={false}
-                    />
-                  ))}
+                  {tabs.map((tab, i) => {
+                    // cannot add count to tab
+                    // waiting for this one: https://github.com/ant-design/ant-design-pro/pull/2862
+                    return (
+                      <NoticeIcon.Tab
+                        key={`${tab.channel}_${i}`}
+                        list={this.notificationsForTab(
+                          (data && data.notifications) || [],
+                          tab
+                        )}
+                        title={tab.title}
+                        showClear={false}
+                      />
+                    );
+                  })}
                 </NoticeIcon>
               );
             }}
