@@ -100,15 +100,16 @@ export class NotificationsMenu extends React.Component<
                   onItemClick={this.onItemClick(history, mutation, refetch)}
                 >
                   {tabs.map((tab, i) => {
-                    // cannot add count to tab
-                    // waiting for this one: https://github.com/ant-design/ant-design-pro/pull/2862
+                    const notifications = this.notificationsForTab(
+                      (data && data.notifications) || [],
+                      tab
+                    );
                     return (
                       <NoticeIcon.Tab
                         key={`${tab.channel}_${i}`}
-                        list={this.notificationsForTab(
-                          (data && data.notifications) || [],
-                          tab
-                        )}
+                        list={notifications}
+                        count={notifications.filter((x: any) => !x.seen).length}
+                        skeletonProps={{}}
                         title={tab.title}
                         showClear={false}
                       />
