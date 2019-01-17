@@ -227,9 +227,9 @@ ant-design-palettes@^1.1.3:
   dependencies:
     tinycolor2 "^1.4.1"
 
-ant-design-pro@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/ant-design-pro/-/ant-design-pro-2.2.0.tgz#9922e814a7538198ff3be724cace03dc88537676"
+ant-design-pro@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/ant-design-pro/-/ant-design-pro-2.2.1.tgz#5d29f73012bbc855c96477974d491af70ea49d9a"
   dependencies:
     "@antv/data-set" "^0.10.0"
     "@babel/runtime" "^7.2.0"
