@@ -1,6 +1,7 @@
 import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
 import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
-import { Tag, Icon } from 'antd';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
+import { Tag, Icon, Alert } from 'antd';
 import gql from 'graphql-tag';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -86,7 +87,16 @@ export class NotificationsMenu extends React.Component<
             variables={{ principal: this.props.principal }}
             children={({ loading, error, data, refetch }) => {
               if (error) {
-                console.log(`error fetching notifications ${error.message}`);
+                return (
+                  <Alert
+                    message={
+                      <Ellipsis length={50} tooltip={true}>
+                        {error.message}
+                      </Ellipsis>
+                    }
+                    type="error"
+                  />
+                );
               }
               return (
                 <NoticeIcon
