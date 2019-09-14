@@ -1,1 +1,1 @@
-export { NotificationsMenu } from './NotificationsMenu';
+export { NotificationsMenu, INotificationData } from './NotificationsMenu';
