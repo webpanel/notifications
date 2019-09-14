@@ -2,7 +2,11 @@ import * as React from 'react';
 import * as moment from 'moment';
 
 import { Alert, Icon, Tag } from 'antd';
-import { DataSource, Resource, ResourceCollectionLayer } from 'webpanel-data';
+import {
+  DataSource,
+  ResourceCollection,
+  ResourceCollectionLayer
+} from 'webpanel-data';
 import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
 
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
@@ -61,10 +65,21 @@ export class NotificationsMenu extends React.Component<
       <ResourceCollectionLayer
         name="Notification"
         initialFilters={{ principal }}
-        fields={['message', 'date', 'channel']}
+        fields={[
+          'id',
+          'title: message',
+          'datetime: date',
+          'channel',
+          'date',
+          'principal',
+          'reference',
+          'referenceID',
+          'seen'
+        ]}
         dataSource={api}
         pollInterval={10000}
-        render={({ error, data, loading, reload, getItem }) => {
+        render={collection => {
+          const { data, loading, error, reload } = collection;
           if (error) {
             return (
               <Alert
@@ -82,9 +97,7 @@ export class NotificationsMenu extends React.Component<
               count={(data && data.filter((x: any) => !x.seen).length) || 0}
               loading={loading}
               onClear={this.onClear}
-              onItemClick={(item: INotificationData) =>
-                this.onItemClick(getItem({ id: item.id }), reload)
-              }
+              onItemClick={this.onItemClick(collection, reload)}
             >
               {_tabs.map((tab, i) => {
                 const notifications = this.notificationsForTab(data || [], tab);
@@ -106,16 +119,15 @@ export class NotificationsMenu extends React.Component<
     );
   }
 
-  private onItemClick = (resource: Resource, reload: any) => async (
+  private onItemClick = (collection: ResourceCollection, reload: any) => async (
     item: INotificationData,
     tabProps: INoticeIconProps
   ) => {
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
-    await resource.patch({ seen: true });
-    // const id = item.id;
-    // await mutation({
-    //   variables: { id }
-    // });
-    reload();
+    if (!item.seen) {
+      const resource = collection.getItem({ id: item.id });
+      await resource.patch({ seen: true });
+      reload();
+    }
   };
 }
