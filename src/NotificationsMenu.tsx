@@ -63,6 +63,7 @@ export class NotificationsMenu extends React.Component<
         initialFilters={{ principal }}
         fields={['message', 'date']}
         dataSource={api}
+        pollInterval={10000}
         render={({ error, data, loading, reload, getItem }) => {
           if (error) {
             return (
