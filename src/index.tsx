@@ -1,2 +1,2 @@
 export { NotificationsMenu } from './NotificationsMenu';
-export { NotificationsSeen } from './NotificationsSeen';
+// export { NotificationsSeen } from './NotificationsSeen';

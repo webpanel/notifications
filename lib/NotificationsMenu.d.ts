@@ -1,10 +1,11 @@
+import * as React from 'react';
+import { DataSource } from 'webpanel-data';
 import { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
 import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
-import * as React from 'react';
 export declare type INotificationData = INoticeIconData & {
     id: string;
     seen: boolean;
-    channel?: string;
+    channel: string;
     reference?: string;
     referenceID?: string;
 };
@@ -13,6 +14,7 @@ interface INotificationsMenuTab {
     title: string;
 }
 interface INotificationsMenuProps {
+    api: DataSource;
     principal: string;
     tabs?: INotificationsMenuTab[];
     onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
