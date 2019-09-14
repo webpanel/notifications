@@ -61,7 +61,7 @@ export class NotificationsMenu extends React.Component<
       <ResourceCollectionLayer
         name="Notification"
         initialFilters={{ principal }}
-        fields={['message', 'date']}
+        fields={['message', 'date', 'channel']}
         dataSource={api}
         pollInterval={10000}
         render={({ error, data, loading, reload, getItem }) => {
