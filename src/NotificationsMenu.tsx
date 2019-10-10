@@ -5,7 +5,8 @@ import { Alert, Icon, Tag } from 'antd';
 import {
   DataSource,
   ResourceCollection,
-  ResourceCollectionLayer
+  ResourceCollectionLayer,
+  SortInfoOrder
 } from 'webpanel-data';
 import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
 
@@ -65,6 +66,7 @@ export class NotificationsMenu extends React.Component<
       <ResourceCollectionLayer
         name="Notification"
         initialFilters={{ principal }}
+        initialSorting={[{columnKey:'date',order: SortInfoOrder.descend}]}
         fields={[
           'id',
           'title: message',
