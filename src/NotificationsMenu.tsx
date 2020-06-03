@@ -1,17 +1,18 @@
-import * as React from 'react';
-import * as moment from 'moment';
+import * as React from "react";
+import * as moment from "moment";
 
-import { Alert, Icon, Tag } from 'antd';
+import { Alert, Icon, Tag } from "antd";
 import {
   DataSource,
   ResourceCollection,
   ResourceCollectionLayer,
-  SortInfoOrder
-} from 'webpanel-data';
-import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
+  SortInfoOrder,
+} from "webpanel-data";
+import NoticeIcon, { INoticeIconProps } from "ant-design-pro/lib/NoticeIcon";
 
-import Ellipsis from 'ant-design-pro/lib/Ellipsis';
-import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
+import { DataSourceArgumentMap } from "webpanel-data/lib/DataSource";
+import Ellipsis from "ant-design-pro/lib/Ellipsis";
+import { INoticeIconData } from "ant-design-pro/lib/NoticeIcon/NoticeIconTab";
 
 export type INotificationData = INoticeIconData & {
   id: string;
@@ -29,6 +30,7 @@ interface INotificationsMenuProps {
   api: DataSource;
   principal: string;
   tabs?: INotificationsMenuTab[];
+  channels?: string[];
   onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
 }
 
@@ -44,43 +46,46 @@ export class NotificationsMenu extends React.Component<
     tab: INotificationsMenuTab
   ): INotificationData[] => {
     return notifications
-      .filter(n => !tab.channel || tab.channel === n.channel)
+      .filter((n) => !tab.channel || tab.channel === n.channel)
       .map((x: any) => ({
         ...x,
         datetime: moment(x.datetime).fromNow(),
         extra: !x.seen ? (
-          <Tag color={'green'}>
+          <Tag color={"green"}>
             <Icon type="notification" />
           </Tag>
-        ) : (
-          undefined
-        )
+        ) : undefined,
       }));
   };
 
   public render() {
-    const { api, tabs, principal } = this.props;
-    const _tabs = tabs || [{ title: 'Notifications' }];
+    const { api, tabs, principal, channels } = this.props;
+    const _tabs = tabs || [{ title: "Notifications" }];
+
+    const filter: DataSourceArgumentMap = { principal };
+    if (channels) {
+      filter.channel_in = channels;
+    }
 
     return (
       <ResourceCollectionLayer
         name="Notification"
-        initialFilters={{ principal }}
-        initialSorting={[{columnKey:'date',order: SortInfoOrder.descend}]}
+        initialFilters={filter}
+        initialSorting={[{ columnKey: "date", order: SortInfoOrder.descend }]}
         fields={[
-          'id',
-          'title: message',
-          'datetime: date',
-          'channel',
-          'date',
-          'principal',
-          'reference',
-          'referenceID',
-          'seen'
+          "id",
+          "title: message",
+          "datetime: date",
+          "channel",
+          "date",
+          "principal",
+          "reference",
+          "referenceID",
+          "seen",
         ]}
         dataSource={api}
         pollInterval={10000}
-        render={collection => {
+        render={(collection) => {
           const { data, loading, error, reload } = collection;
           if (error) {
             return (
