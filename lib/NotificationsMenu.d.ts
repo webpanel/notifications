@@ -1,4 +1,4 @@
-import * as React from "react";
+/// <reference types="react" />
 import { DataSource } from "webpanel-data";
 import { INoticeIconProps } from "ant-design-pro/lib/NoticeIcon";
 import { INoticeIconData } from "ant-design-pro/lib/NoticeIcon/NoticeIconTab";
@@ -20,10 +20,5 @@ interface INotificationsMenuProps {
     channels?: string[];
     onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
 }
-export declare class NotificationsMenu extends React.Component<INotificationsMenuProps> {
-    onClear: (tabName: string) => void;
-    private notificationsForTab;
-    render(): JSX.Element;
-    private onItemClick;
-}
+export declare const NotificationsMenu: (props: INotificationsMenuProps) => JSX.Element;
 export {};
