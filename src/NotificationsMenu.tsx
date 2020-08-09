@@ -5,8 +5,8 @@ import { Alert, Icon, Tag } from "antd";
 import {
   DataSource,
   ResourceCollection,
-  ResourceCollectionLayer,
   SortInfoOrder,
+  useResourceCollection,
 } from "webpanel-data";
 import NoticeIcon, { INoticeIconProps } from "ant-design-pro/lib/NoticeIcon";
 
@@ -67,69 +67,66 @@ export class NotificationsMenu extends React.Component<
       filter.channel_in = channels;
     }
 
-    return (
-      <ResourceCollectionLayer
-        name="Notification"
-        initialFilters={filter}
-        initialSorting={[{ columnKey: "date", order: SortInfoOrder.descend }]}
-        fields={[
-          "id",
-          "title: message",
-          "datetime: date",
-          "channel",
-          "date",
-          "principal",
-          "reference",
-          "referenceID",
-          "seen",
-        ]}
-        dataSource={api}
-        pollInterval={10000}
-        render={(collection) => {
-          const { data, loading, error, reload } = collection;
-          if (error) {
-            return (
-              <Alert
-                message={
-                  <Ellipsis length={50} tooltip={true}>
-                    {error.message}
-                  </Ellipsis>
-                }
-                type="error"
-              />
-            );
+    const collection = useResourceCollection({
+      name: "Notification",
+      initialFilters: filter,
+      initialSorting: [{ columnKey: "date", order: SortInfoOrder.descend }],
+      fields: [
+        "id",
+        "title: message",
+        "datetime: date",
+        "channel",
+        "date",
+        "principal",
+        "reference",
+        "referenceID",
+        "seen",
+      ],
+      dataSource: api,
+      pollInterval: 10000,
+    });
+
+    const { data, loading, error, reload } = collection;
+    if (error) {
+      return (
+        <Alert
+          message={
+            <Ellipsis length={50} tooltip={true}>
+              {error.message}
+            </Ellipsis>
           }
+          type="error"
+        />
+      );
+    }
+    return (
+      <NoticeIcon
+        count={(data && data.filter((x: any) => !x.seen).length) || 0}
+        loading={loading}
+        onClear={this.onClear}
+        onItemClick={this.onItemClick(collection, reload)}
+      >
+        {_tabs.map((tab, i) => {
+          const notifications = this.notificationsForTab(data || [], tab);
           return (
-            <NoticeIcon
-              count={(data && data.filter((x: any) => !x.seen).length) || 0}
-              loading={loading}
-              onClear={this.onClear}
-              onItemClick={this.onItemClick(collection, reload)}
-            >
-              {_tabs.map((tab, i) => {
-                const notifications = this.notificationsForTab(data || [], tab);
-                return (
-                  <NoticeIcon.Tab
-                    key={`${tab.channel}_${i}`}
-                    list={notifications}
-                    count={notifications.filter((x: any) => !x.seen).length}
-                    skeletonProps={{}}
-                    title={tab.title}
-                    showClear={false}
-                  />
-                );
-              })}
-            </NoticeIcon>
+            <NoticeIcon.Tab
+              key={`${tab.channel}_${i}`}
+              list={notifications}
+              count={notifications.filter((x: any) => !x.seen).length}
+              skeletonProps={{}}
+              title={tab.title}
+              showClear={false}
+            />
           );
-        }}
-      />
+        })}
+      </NoticeIcon>
     );
   }
 
-  private onItemClick = (collection: ResourceCollection, reload: any) => async (
-    item: INotificationData,
-    tabProps: INoticeIconProps
-  ) => {
+  private onItemClick = (
+    collection: ResourceCollection<any>,
+    reload: any
+  ) => async (item: INotificationData, tabProps: INoticeIconProps) => {
     if (this.props.onSelect) this.props.onSelect(item, tabProps);
     if (!item.seen) {
       const resource = collection.getItem({ id: item.id });
