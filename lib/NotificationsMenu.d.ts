@@ -8,6 +8,7 @@ export declare type INotificationData = INoticeIconData & {
     channel: string;
     reference?: string;
     referenceID?: string;
+    url?: string;
 };
 interface INotificationsMenuTab {
     channel?: string;

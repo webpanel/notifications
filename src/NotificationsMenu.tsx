@@ -20,6 +20,7 @@ export type INotificationData = INoticeIconData & {
   channel: string;
   reference?: string;
   referenceID?: string;
+  url?: string;
 };
 
 interface INotificationsMenuTab {
@@ -90,6 +91,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
       "reference",
       "referenceID",
       "seen",
+      "url",
     ],
     dataSource: api,
     pollInterval: 10000,
