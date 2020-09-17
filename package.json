@@ -34,6 +34,6 @@
     "ant-design-pro": "2.2.1",
     "antd": "^3.20.7",
     "typescript": "^3.0.1",
-    "webpanel-data": "^0.2.4"
+    "webpanel-data": "^0.2.5"
   }
 }
