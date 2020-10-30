@@ -1,20 +1,21 @@
 import * as React from "react";
 import * as moment from "moment";
 
-import { Alert, Icon, Tag } from "antd";
+import { Alert, Tag } from "antd";
 import {
   DataSource,
   ResourceCollection,
   SortInfoOrder,
   useResourceCollection,
 } from "webpanel-data";
-import NoticeIcon, { INoticeIconProps } from "ant-design-pro/lib/NoticeIcon";
+import NoticeIcon, { NoticeIconData } from "./NoticeIcon";
 
 import { DataSourceArgumentMap } from "webpanel-data/lib/DataSource";
-import Ellipsis from "ant-design-pro/lib/Ellipsis";
-import { INoticeIconData } from "ant-design-pro/lib/NoticeIcon/NoticeIconTab";
+import { NoticeIconTabProps } from "./NoticeIcon/NoticeList";
+// import Ellipsis from "ant-design-pro/lib/Ellipsis";
+import { NotificationOutlined } from "@ant-design/icons";
 
-export type INotificationData = INoticeIconData & {
+export type INotificationData = NoticeIconData & {
   id: string;
   seen: boolean;
   channel: string;
@@ -32,7 +33,7 @@ interface INotificationsMenuProps {
   principal: string;
   tabs?: INotificationsMenuTab[];
   channels?: string[];
-  onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
+  onSelect: (item: INotificationData, tabProps: NoticeIconTabProps) => void;
 }
 
 export const NotificationsMenu = (props: INotificationsMenuProps) => {
@@ -51,7 +52,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
         datetime: moment(x.datetime).fromNow(),
         extra: !x.seen ? (
           <Tag color={"green"}>
-            <Icon type="notification" />
+            <NotificationOutlined />
           </Tag>
         ) : undefined,
       }));
@@ -60,7 +61,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
   const onItemClick = (
     collection: ResourceCollection<any>,
     reload: any
-  ) => async (item: INotificationData, tabProps: INoticeIconProps) => {
+  ) => async (item: INotificationData, tabProps: NoticeIconTabProps) => {
     if (props.onSelect) props.onSelect(item, tabProps);
     if (!item.seen) {
       const resource = collection.getItem({ id: item.id });
@@ -99,16 +100,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
 
   const { data, loading, error, reload } = collection;
   if (error) {
-    return (
-      <Alert
-        message={
-          <Ellipsis length={50} tooltip={true}>
-            {error.message}
-          </Ellipsis>
-        }
-        type="error"
-      />
-    );
+    return <Alert message={error.message} type="error" />;
   }
   return (
     <NoticeIcon
@@ -122,9 +114,10 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
         return (
           <NoticeIcon.Tab
             key={`${tab.channel}_${i}`}
+            tabKey={`${i}`}
             list={notifications}
             count={notifications.filter((x: any) => !x.seen).length}
-            skeletonProps={{}}
+            // skeletonProps={{}}
             title={tab.title}
             showClear={false}
           />
