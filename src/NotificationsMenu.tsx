@@ -1,41 +1,27 @@
-import NoticeIcon, { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
-import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
-import Ellipsis from 'ant-design-pro/lib/Ellipsis';
-import { Tag, Icon, Alert } from 'antd';
-import gql from 'graphql-tag';
-import * as moment from 'moment';
-import * as React from 'react';
-import { Query, Mutation } from 'react-apollo';
+import * as React from "react";
+import * as moment from "moment";
 
-const QUERY_NOTIFICATIONS = gql`
-  query fetchNotifications($principal: String) {
-    notifications(principal: $principal, limit: 50) {
-      id
-      title: message
-      seen
-      principal
-      channel
-      reference
-      referenceID
-      datetime: date
-    }
-  }
-`;
+import { Alert, Tag } from "antd";
+import {
+  DataSource,
+  ResourceCollection,
+  SortInfoOrder,
+  useResourceCollection,
+} from "webpanel-data";
+import NoticeIcon, { NoticeIconData } from "./NoticeIcon";
 
-const SEEN_NOTIFICATION = gql`
-  mutation seenNotification($id: ID!) {
-    seenNotification(id: $id) {
-      id
-    }
-  }
-`;
+import { DataSourceArgumentMap } from "webpanel-data/lib/DataSource";
+import { NoticeIconTabProps } from "./NoticeIcon/NoticeList";
+// import Ellipsis from "ant-design-pro/lib/Ellipsis";
+import { NotificationOutlined } from "@ant-design/icons";
 
-export type INotificationData = INoticeIconData & {
+export type INotificationData = NoticeIconData & {
   id: string;
   seen: boolean;
-  channel?: string;
+  channel: string;
   reference?: string;
   referenceID?: string;
+  url?: string;
 };
 
 interface INotificationsMenuTab {
@@ -43,106 +29,100 @@ interface INotificationsMenuTab {
   title: string;
 }
 interface INotificationsMenuProps {
+  api: DataSource;
   principal: string;
   tabs?: INotificationsMenuTab[];
-  onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
+  channels?: string[];
+  onSelect: (item: INotificationData, tabProps: NoticeIconTabProps) => void;
 }
 
-export class NotificationsMenu extends React.Component<
-  INotificationsMenuProps
-> {
-  public onClear = (tabName: string) => {
-    global.console.log('clear', tabName);
+export const NotificationsMenu = (props: INotificationsMenuProps) => {
+  const onClear = (tabName: string) => {
+    // global.console.log('clear', tabName);
   };
 
-  private notificationsForTab = (
+  const notificationsForTab = (
     notifications: INotificationData[],
     tab: INotificationsMenuTab
   ): INotificationData[] => {
     return notifications
-      .filter(n => !tab.channel || tab.channel === n.channel)
+      .filter((n) => !tab.channel || tab.channel === n.channel)
       .map((x: any) => ({
         ...x,
         datetime: moment(x.datetime).fromNow(),
         extra: !x.seen ? (
-          <Tag color={'green'}>
-            <Icon type="notification" />
+          <Tag color={"green"}>
+            <NotificationOutlined />
           </Tag>
-        ) : (
-          undefined
-        )
+        ) : undefined,
       }));
   };
 
-  public render() {
-    const tabs = this.props.tabs || [{ title: 'Notifications' }];
+  const onItemClick = (
+    collection: ResourceCollection<any>,
+    reload: any
+  ) => async (item: INotificationData, tabProps: NoticeIconTabProps) => {
+    if (props.onSelect) props.onSelect(item, tabProps);
+    if (!item.seen) {
+      const resource = collection.getItem({ id: item.id });
+      await resource.patch({ seen: true });
+      reload();
+    }
+  };
 
-    return (
-      <Mutation
-        mutation={SEEN_NOTIFICATION}
-        children={mutation => (
-          <Query
-            query={QUERY_NOTIFICATIONS}
-            pollInterval={10000}
-            variables={{ principal: this.props.principal }}
-            children={({ loading, error, data, refetch }) => {
-              if (error) {
-                return (
-                  <Alert
-                    message={
-                      <Ellipsis length={50} tooltip={true}>
-                        {error.message}
-                      </Ellipsis>
-                    }
-                    type="error"
-                  />
-                );
-              }
-              return (
-                <NoticeIcon
-                  count={
-                    data &&
-                    data.notifications &&
-                    data.notifications.filter((x: any) => !x.seen).length
-                  }
-                  loading={loading}
-                  onClear={this.onClear}
-                  onItemClick={this.onItemClick(history, mutation, refetch)}
-                >
-                  {tabs.map((tab, i) => {
-                    const notifications = this.notificationsForTab(
-                      (data && data.notifications) || [],
-                      tab
-                    );
-                    return (
-                      <NoticeIcon.Tab
-                        key={`${tab.channel}_${i}`}
-                        list={notifications}
-                        count={notifications.filter((x: any) => !x.seen).length}
-                        skeletonProps={{}}
-                        title={tab.title}
-                        showClear={false}
-                      />
-                    );
-                  })}
-                </NoticeIcon>
-              );
-            }}
-          />
-        )}
-      />
-    );
+  const { api, tabs, principal, channels } = props;
+  const _tabs = tabs || [{ title: "Notifications" }];
+
+  const filter: DataSourceArgumentMap = { principal };
+  if (channels) {
+    filter.channel_in = channels;
   }
 
-  private onItemClick = (history: any, mutation: any, refetch: any) => async (
-    item: INotificationData,
-    tabProps: INoticeIconProps
-  ) => {
-    if (this.props.onSelect) this.props.onSelect(item, tabProps);
-    const id = item.id;
-    await mutation({
-      variables: { id }
-    });
-    refetch();
-  };
-}
+  const collection = useResourceCollection({
+    name: "Notification",
+    initialFilters: filter,
+    initialSorting: [{ columnKey: "date", order: SortInfoOrder.descend }],
+    fields: [
+      "id",
+      "title: message",
+      "datetime: date",
+      "channel",
+      "date",
+      "principal",
+      "reference",
+      "referenceID",
+      "seen",
+      "url",
+    ],
+    dataSource: api,
+    pollInterval: 10000,
+  });
+
+  const { data, loading, error, reload } = collection;
+  if (error) {
+    return <Alert message={error.message} type="error" />;
+  }
+  return (
+    <NoticeIcon
+      count={(data && data.filter((x: any) => !x.seen).length) || 0}
+      loading={loading}
+      onClear={onClear}
+      onItemClick={onItemClick(collection, reload)}
+    >
+      {_tabs.map((tab, i) => {
+        const notifications = notificationsForTab(data || [], tab);
+        return (
+          <NoticeIcon.Tab
+            key={`${tab.channel}_${i}`}
+            tabKey={`${i}`}
+            list={notifications}
+            count={notifications.filter((x: any) => !x.seen).length}
+            // skeletonProps={{}}
+            title={tab.title}
+            showClear={false}
+          />
+        );
+      })}
+    </NoticeIcon>
+  );
+};

@@ -1,2 +1,2 @@
-export { NotificationsMenu } from './NotificationsMenu';
-export { NotificationsSeen } from './NotificationsSeen';
+import "../styles/index.css";
+export { NotificationsMenu, INotificationData } from "./NotificationsMenu";

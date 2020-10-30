@@ -1,26 +1,25 @@
-import { INoticeIconProps } from 'ant-design-pro/lib/NoticeIcon';
-import { INoticeIconData } from 'ant-design-pro/lib/NoticeIcon/NoticeIconTab';
-import * as React from 'react';
-export declare type INotificationData = INoticeIconData & {
+/// <reference types="react" />
+import { DataSource } from "webpanel-data";
+import { NoticeIconData } from "./NoticeIcon";
+import { NoticeIconTabProps } from "./NoticeIcon/NoticeList";
+export declare type INotificationData = NoticeIconData & {
     id: string;
     seen: boolean;
-    channel?: string;
+    channel: string;
     reference?: string;
     referenceID?: string;
+    url?: string;
 };
 interface INotificationsMenuTab {
     channel?: string;
     title: string;
 }
 interface INotificationsMenuProps {
+    api: DataSource;
     principal: string;
     tabs?: INotificationsMenuTab[];
-    onSelect: (item: INotificationData, tabProps: INoticeIconProps) => void;
+    channels?: string[];
+    onSelect: (item: INotificationData, tabProps: NoticeIconTabProps) => void;
 }
-export declare class NotificationsMenu extends React.Component<INotificationsMenuProps> {
-    onClear: (tabName: string) => void;
-    private notificationsForTab;
-    render(): JSX.Element;
-    private onItemClick;
-}
+export declare const NotificationsMenu: (props: INotificationsMenuProps) => JSX.Element;
 export {};
