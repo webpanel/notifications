@@ -1,19 +1,9 @@
-import { Badge, Spin, Tabs } from "antd";
-import NoticeList, { NoticeIconTabProps } from "./NoticeList";
+import { Badge, List, Popover, Tabs } from "antd";
 
 import { BellOutlined } from "@ant-design/icons";
-import HeaderDropdown from "../HeaderDropdown";
 import React from "react";
 
-// import classNames from "classnames";
-
-// import styles from "./index.less";
-// import useMergeValue from "use-merge-value";
-
-const { TabPane } = Tabs;
-
 export interface NoticeIconData {
-  avatar?: string | React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
   datetime?: React.ReactNode;
@@ -24,134 +14,84 @@ export interface NoticeIconData {
 }
 
 export interface NoticeIconProps {
+  children?: React.ReactNode;
   count?: number;
-  bell?: React.ReactNode;
-  className?: string;
   loading?: boolean;
   onClear?: (tabName: string, tabKey: string) => void;
-  onItemClick?: (item: NoticeIconData, tabProps: NoticeIconTabProps) => void;
-  onViewMore?: (tabProps: NoticeIconTabProps, e: MouseEvent) => void;
-  onTabChange?: (tabTile: string) => void;
+  onItemClick?: (
+    item: NoticeIconData,
+    tabProps: NoticeIconTabListProps
+  ) => void;
+  // onViewMore?: (tabProps: NoticeIconTabProps, e: MouseEvent) => void;
+  // onTabChange?: (tabTile: string) => void;
   style?: React.CSSProperties;
-  onPopupVisibleChange?: (visible: boolean) => void;
-  popupVisible?: boolean;
-  clearText?: string;
-  viewMoreText?: string;
-  clearClose?: boolean;
-  emptyImage?: string;
-  children: React.ReactElement<NoticeIconTabProps>[];
+  // onPopupVisibleChange?: (visible: boolean) => void;
+  // popupVisible?: boolean;
+  // clearText?: string;
+  // viewMoreText?: string;
+  // clearClose?: boolean;
+  // emptyImage?: string;
+  // children: React.ReactElement<NoticeIconTabProps>[];
+}
+export interface NoticeIconTabListProps {
+  // count?: number;
+  // name?: string;
+  // showClear?: boolean;
+  // showViewMore?: boolean;
+  // style?: React.CSSProperties;
+  // tab: string;
+  // tabKey: string;
+  data?: NoticeIconData[];
+  onClick?: (item: NoticeIconData) => void;
+  // onClear?: () => void;
+  // emptyText?: string;
+  // clearText?: string;
+  // viewMoreText?: string;
+  // onViewMore?: (e: any) => void;
 }
 
-const NoticeIcon: React.FC<NoticeIconProps> & {
-  Tab: typeof NoticeList;
-} = (props) => {
-  const [visible, setVisible] = React.useState(false);
+export const NoticeIconTabList = (props: NoticeIconTabListProps) => {
+  const { data, onClick } = props;
+  return (
+    <List
+      style={{ height: 400, overflowY: "scroll" }}
+      size="small"
+      dataSource={data}
+      renderItem={(item) => (
+        <List.Item
+          actions={[item.extra]}
+          onClick={() => onClick && onClick(item)}
+          style={{ cursor: "pointer" }}
+        >
+          <List.Item.Meta title={item.title} description={item.datetime} />
+        </List.Item>
+      )}
+    />
+  );
+};
 
-  const getNotificationBox = (): React.ReactNode => {
-    const {
-      children,
-      loading,
-      onClear,
-      onTabChange,
-      onItemClick,
-      onViewMore,
-      clearText,
-      viewMoreText,
-    } = props;
-    if (!children) {
-      return null;
-    }
-    const panes: React.ReactNode[] = [];
-    React.Children.forEach(
-      children,
-      (child: React.ReactElement<NoticeIconTabProps>): void => {
-        if (!child) {
-          return;
+export const NoticeIcon = (props: NoticeIconProps) => {
+  const { count, children, style } = props;
+  return (
+    <span style={{ ...style, cursor: "pointer" }}>
+      <Popover
+        content={
+          <Tabs
+            centered={true}
+            style={{ margin: -16 }}
+            tabBarStyle={{ margin: 0 }}
+          >
+            {children}
+          </Tabs>
         }
-        const {
-          list,
-          title,
-          count,
-          tabKey,
-          showClear,
-          showViewMore,
-        } = child.props;
-        const len = list && list.length ? list.length : 0;
-        const msgCount = count || count === 0 ? count : len;
-        const tabTitle: string =
-          msgCount > 0 ? `${title} (${msgCount})` : title;
-        panes.push(
-          <TabPane tab={tabTitle} key={tabKey}>
-            <NoticeList
-              clearText={clearText}
-              viewMoreText={viewMoreText}
-              data={list}
-              onClear={(): void => onClear && onClear(title, tabKey)}
-              onClick={(item): void =>
-                onItemClick && onItemClick(item, child.props)
-              }
-              onViewMore={(event): void =>
-                onViewMore && onViewMore(child.props, event)
-              }
-              showClear={showClear}
-              showViewMore={showViewMore}
-              // title={title}
-              {...child.props}
-            />
-          </TabPane>
-        );
-      }
-    );
-    return (
-      <Spin spinning={loading} delay={300}>
-        <Tabs /*className={styles.tabs}*/ onChange={onTabChange}>{panes}</Tabs>
-      </Spin>
-    );
-  };
-
-  const { /*className,*/ count, bell } = props;
-
-  // const [visible, setVisible] = useMergeValue<boolean>(false, {
-  //   value: props.popupVisible,
-  //   onChange: props.onPopupVisibleChange,
-  // });
-  // const noticeButtonClass = classNames(className, styles.noticeButton);
-  const notificationBox = getNotificationBox();
-  const NoticeBellIcon = bell || <BellOutlined /*className={styles.icon}*/ />;
-  const trigger = (
-    <span /*className={classNames(noticeButtonClass, { opened: visible })}*/>
-      <Badge
-        count={count}
-        style={{ boxShadow: "none" }}
-        // className={styles.badge}
+        overlayStyle={{ width: 350 }}
+        placement="bottomRight"
+        trigger="click"
       >
-        {NoticeBellIcon}
-      </Badge>
+        <Badge count={count} size="small">
+          <BellOutlined />
+        </Badge>
+      </Popover>
     </span>
   );
-  if (!notificationBox) {
-    return trigger;
-  }
-
-  return (
-    <HeaderDropdown
-      placement="bottomRight"
-      overlay={notificationBox}
-      // overlayClassName={styles.popover}
-      trigger={["click"]}
-      visible={visible}
-      onVisibleChange={setVisible}
-    >
-      {trigger}
-    </HeaderDropdown>
-  );
 };
-
-NoticeIcon.defaultProps = {
-  emptyImage:
-    "https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg",
-};
-
-NoticeIcon.Tab = NoticeList;
-
-export default NoticeIcon;

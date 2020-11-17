@@ -1,7 +1,6 @@
-/// <reference types="react" />
+import * as React from "react";
 import { DataSource } from "webpanel-data";
 import { NoticeIconData } from "./NoticeIcon";
-import { NoticeIconTabProps } from "./NoticeIcon/NoticeList";
 export declare type INotificationData = NoticeIconData & {
     id: string;
     seen: boolean;
@@ -19,7 +18,8 @@ interface INotificationsMenuProps {
     principal: string;
     tabs?: INotificationsMenuTab[];
     channels?: string[];
-    onSelect: (item: INotificationData, tabProps: NoticeIconTabProps) => void;
+    onSelect: (item: INotificationData, tabProps: INotificationsMenuTab) => void;
+    style?: React.CSSProperties;
 }
 export declare const NotificationsMenu: (props: INotificationsMenuProps) => JSX.Element;
 export {};

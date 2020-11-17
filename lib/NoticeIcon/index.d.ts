@@ -1,7 +1,5 @@
-import NoticeList, { NoticeIconTabProps } from "./NoticeList";
 import React from "react";
 export interface NoticeIconData {
-    avatar?: string | React.ReactNode;
     title?: React.ReactNode;
     description?: React.ReactNode;
     datetime?: React.ReactNode;
@@ -11,24 +9,16 @@ export interface NoticeIconData {
     read?: boolean;
 }
 export interface NoticeIconProps {
+    children?: React.ReactNode;
     count?: number;
-    bell?: React.ReactNode;
-    className?: string;
     loading?: boolean;
     onClear?: (tabName: string, tabKey: string) => void;
-    onItemClick?: (item: NoticeIconData, tabProps: NoticeIconTabProps) => void;
-    onViewMore?: (tabProps: NoticeIconTabProps, e: MouseEvent) => void;
-    onTabChange?: (tabTile: string) => void;
+    onItemClick?: (item: NoticeIconData, tabProps: NoticeIconTabListProps) => void;
     style?: React.CSSProperties;
-    onPopupVisibleChange?: (visible: boolean) => void;
-    popupVisible?: boolean;
-    clearText?: string;
-    viewMoreText?: string;
-    clearClose?: boolean;
-    emptyImage?: string;
-    children: React.ReactElement<NoticeIconTabProps>[];
 }
-declare const NoticeIcon: React.FC<NoticeIconProps> & {
-    Tab: typeof NoticeList;
-};
-export default NoticeIcon;
+export interface NoticeIconTabListProps {
+    data?: NoticeIconData[];
+    onClick?: (item: NoticeIconData) => void;
+}
+export declare const NoticeIconTabList: (props: NoticeIconTabListProps) => JSX.Element;
+export declare const NoticeIcon: (props: NoticeIconProps) => JSX.Element;
