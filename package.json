@@ -10,14 +10,10 @@
   },
   "dependencies": {
     "@types/classnames": "^2.2.11",
-    "@types/graphql": "^14.0.4",
-    "graphql": "^14.0.2",
-    "graphql-tag": "^2.10.0",
     "moment": "^2.23.0"
   },
   "peerDependencies": {
-    "ant-design-pro": "2.2.1",
-    "antd": "3.8.1"
+    "antd": "^4.7.3"
   },
   "repository": {
     "type": "git",
