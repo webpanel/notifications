@@ -1,22 +1,17 @@
 import * as React from "react";
 import * as moment from "moment";
 
-import { Alert, Tabs, Tag } from "antd";
+import { Alert, Button, Tabs, Tag, message } from "antd";
 import {
   DataSource,
-  ResourceCollection,
+  Resource,
   SortInfoOrder,
   useResourceCollection,
 } from "webpanel-data";
-import {
-  NoticeIcon,
-  NoticeIconData,
-  NoticeIconTabList,
-  NoticeIconTabListProps,
-} from "./NoticeIcon";
+import { EyeInvisibleOutlined, NotificationOutlined } from "@ant-design/icons";
+import { NoticeIcon, NoticeIconData, NoticeIconTabList } from "./NoticeIcon";
 
 import { DataSourceArgumentMap } from "webpanel-data/lib/DataSource";
-import { NotificationOutlined } from "@ant-design/icons";
 
 export type INotificationData = NoticeIconData & {
   id: string;
@@ -40,11 +35,48 @@ interface INotificationsMenuProps {
   style?: React.CSSProperties;
 }
 
-export const NotificationsMenu = (props: INotificationsMenuProps) => {
-  const onClear = (tabName: string) => {
-    // global.console.log('clear', tabName);
-  };
+const Tab = (props: {
+  tab: INotificationsMenuTab;
+  unseen: number;
+  clearItems: (channel: string) => Promise<void>;
+}) => {
+  const { tab, unseen, clearItems } = props;
+  const [clearing, setClearing] = React.useState(false);
+  return (
+    <>
+      {tab.title}{" "}
+      {unseen > 0 ? (
+        <>
+          ({unseen}){" "}
+          <Button
+            icon={<EyeInvisibleOutlined />}
+            danger={true}
+            size="small"
+            type="link"
+            loading={clearing}
+            onClick={async () => {
+              if (tab.channel) {
+                try {
+                  setClearing(true);
+                  await clearItems(tab.channel);
+                } catch (err) {
+                  message.error(err.message);
+                } finally {
+                  setClearing(false);
+                }
+              }
+            }}
+          />
+        </>
+      ) : (
+        ""
+      )}
+    </>
+  );
+};
 
+export const NotificationsMenu = (props: INotificationsMenuProps) => {
+  const [version, setVersion] = React.useState(0);
   const notificationsForTab = (
     notifications: INotificationData[],
     tab: INotificationsMenuTab
@@ -98,8 +130,19 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
     if (!item.seen) {
       const resource = collection.getItem({ id: item.id });
       await resource.patch({ seen: true });
-      reload();
+      await reload();
+      setVersion(version + 1);
     }
+  };
+
+  const clearItems = async (channel: string) => {
+    const batch = new Resource({
+      name: "NotificationBatchUpdate",
+      dataSource: api,
+    });
+    await batch.save({ principal, channel, seen: true });
+    await reload();
+    setVersion(version + 1);
   };
 
   const { data, loading, error, reload } = collection;
@@ -110,7 +153,6 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
     <NoticeIcon
       count={(data && data.filter((x: any) => !x.seen).length) || 0}
       loading={loading}
-      onClear={onClear}
       style={style}
     >
       {_tabs.map((tab, i) => {
@@ -119,7 +161,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
         return (
           <Tabs.TabPane
             key={`${tab.channel}_${i}`}
-            tab={`${tab.title}${unseen > 0 ? ` (${unseen})` : ""}`}
+            tab={<Tab tab={tab} unseen={unseen} clearItems={clearItems} />}
           >
             <NoticeIconTabList
               data={notifications}
