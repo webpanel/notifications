@@ -1,6 +1,6 @@
 {
   "name": "webpanel-notifications",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -15,7 +15,7 @@
   "peerDependencies": {
     "antd": "^4.7.3",
     "i18next": "*",
-    "react-i18next":"*"
+    "react-i18next": "*"
   },
   "repository": {
     "type": "git",
