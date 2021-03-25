@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as moment from "moment";
 
-import { Alert, Button, Tabs, Tag, message } from "antd";
+import { Alert, Button, Tabs, Tag, Tooltip, message } from "antd";
 import {
   DataSource,
   Resource,
@@ -12,6 +12,7 @@ import { EyeInvisibleOutlined, NotificationOutlined } from "@ant-design/icons";
 import { NoticeIcon, NoticeIconData, NoticeIconTabList } from "./NoticeIcon";
 
 import { DataSourceArgumentMap } from "webpanel-data/lib/DataSource";
+import { useTranslation } from "react-i18next";
 
 export type INotificationData = NoticeIconData & {
   id: string;
@@ -42,31 +43,34 @@ const Tab = (props: {
 }) => {
   const { tab, unseen, clearItems } = props;
   const [clearing, setClearing] = React.useState(false);
+  const { t } = useTranslation("webpanel-notifications");
   return (
     <>
       {tab.title}{" "}
       {unseen > 0 ? (
         <>
           ({unseen}){" "}
-          <Button
-            icon={<EyeInvisibleOutlined />}
-            danger={true}
-            size="small"
-            type="link"
-            loading={clearing}
-            onClick={async () => {
-              if (tab.channel) {
-                try {
-                  setClearing(true);
-                  await clearItems(tab.channel);
-                } catch (err) {
-                  message.error(err.message);
-                } finally {
-                  setClearing(false);
+          <Tooltip title={t("markAsRead")}>
+            <Button
+              icon={<EyeInvisibleOutlined />}
+              danger={true}
+              size="small"
+              type="link"
+              loading={clearing}
+              onClick={async () => {
+                if (tab.channel) {
+                  try {
+                    setClearing(true);
+                    await clearItems(tab.channel);
+                  } catch (err) {
+                    message.error(err.message);
+                  } finally {
+                    setClearing(false);
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </Tooltip>
         </>
       ) : (
         ""
