@@ -110,6 +110,7 @@ export const NotificationsMenu = (props: INotificationsMenuProps) => {
     name: "Notification",
     initialFilters: filter,
     initialSorting: [{ columnKey: "date", order: SortInfoOrder.descend }],
+    initialLimit: 150,
     fields: [
       "id",
       "title: message",
