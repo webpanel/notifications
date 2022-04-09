@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@types/classnames": "^2.2.11",
-    "moment": "^2.23.0"
+    "moment": "^2.29.2"
   },
   "peerDependencies": {
     "antd": "^4.7.3",
